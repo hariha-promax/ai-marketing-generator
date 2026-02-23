@@ -26,4 +26,6 @@ demo = gr.Interface(
     title="AI Marketing Content Generator"
 )
 
-demo.launch(server_name="0.0.0.0", server_port=10000)
+import os
+port = int(os.environ.get("PORT", 10000))
+demo.launch(server_name="0.0.0.0", server_port=port)
