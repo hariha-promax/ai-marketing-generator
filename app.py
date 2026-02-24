@@ -1,16 +1,23 @@
-import gradio as gr
+import streamlit as st
 import requests
 import os
 
+st.title("AutoContent Generator")
+
 API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"
-API_KEY = os.environ.get("HF_TOKEN")
+API_KEY = st.secrets["HF_TOKEN"]
 
-headers = {
-    "Authorization": f"Bearer {API_KEY}"
-}
+headers = {"Authorization": f"Bearer {API_KEY}"}
 
-def generate(product, audience, tone, content_type):
+product = st.text_input("Product Name")
+audience = st.text_input("Target Audience")
+tone = st.text_input("Tone")
+content_type = st.selectbox(
+    "Content Type",
+    ["Social Media Post", "Email Campaign", "Product Description", "Advertisement Copy"]
+)
 
+if st.button("Generate Content"):
     prompt = f"""
     Generate a {content_type}.
     Product: {product}
@@ -19,30 +26,10 @@ def generate(product, audience, tone, content_type):
     Make it persuasive and creative.
     """
 
-    response = requests.post(
-        API_URL,
-        headers=headers,
-        json={"inputs": prompt}
-    )
-
+    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
     result = response.json()
 
     if isinstance(result, list):
-        return result[0]["generated_text"]
+        st.success(result[0]["generated_text"])
     else:
-        return "Model is loading. Try again in 20 seconds."
-
-demo = gr.Interface(
-    fn=generate,
-    inputs=[
-        "text",
-        "text",
-        "text",
-        gr.Dropdown(["Social Media Post", "Email Campaign", "Product Description", "Advertisement Copy"])
-    ],
-    outputs="text",
-    title="AI Marketing Content Generator"
-)
-
-port = int(os.environ.get("PORT", 10000))
-demo.launch(server_name="0.0.0.0", server_port=port)
+        st.error("Model loading. Try again.")
