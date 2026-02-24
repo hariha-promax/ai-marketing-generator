@@ -1,7 +1,7 @@
 import gradio as gr
 from transformers import pipeline
 
-generator = pipeline("text2text-generation", model="google/flan-t5-small")
+generator = pipeline("text-generation", model="google/flan-t5-small")
 
 def generate(product, audience, tone, content_type):
     prompt = f"""
